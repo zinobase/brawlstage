@@ -7,6 +7,7 @@ const agentNativePlugins = agentNative as unknown as (
   options?: Parameters<typeof agentNative>[0],
 ) => any[];
 export default defineConfig({
+  build: { sourcemap: false },
   optimizeDeps: {
     entries: [
       "app/entry.client.tsx",
