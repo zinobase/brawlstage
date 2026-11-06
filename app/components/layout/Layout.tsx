@@ -44,6 +44,10 @@ interface LayoutProps {
 
 const SIDEBAR_COLLAPSE_KEY = "chat.sidebar.collapsed";
 
+// Work screens are full-bleed: the canvas fills the window and the screen floats its own controls over it,
+// so the app sidebar and header bar step aside there.
+const isWorkScreen = (pathname: string): boolean => /^\/arena(\/[^/]+)?\/?$/.test(pathname);
+
 function routeOwnsToolbar(pathname: string): boolean {
   return (
     pathname === HOME_PATH ||
@@ -92,6 +96,7 @@ function LayoutShell({ children }: LayoutProps) {
   // Settings brings its own navigation, header, and agent toggle, so it
   // renders full width.
   const settingsOwnsChrome = isSettingsPathname(location.pathname);
+  const immersive = isWorkScreen(location.pathname);
   const chatHomeHandoffActive = useAgentChatHomeHandoff({
     storageKey: "chat",
     activePath: location.pathname,
@@ -158,7 +163,12 @@ function LayoutShell({ children }: LayoutProps) {
           className="md:hidden"
           onOpenNavigation={openMobileSidebar}
         />
-      ) : settingsOwnsChrome ? null : (
+      ) : settingsOwnsChrome ? null : immersive ? (
+        <MobileAppBar
+          className="md:hidden"
+          onOpenNavigation={openMobileSidebar}
+        />
+      ) : (
         <Suspense fallback={<div className="h-12 shrink-0" />}>
           <Header onOpenMobileSidebar={openMobileSidebar} />
         </Suspense>
@@ -172,7 +182,7 @@ function LayoutShell({ children }: LayoutProps) {
   return (
     <HeaderActionsProvider>
       <div className="agent-layout-shell chat-layout-shell flex h-screen w-full overflow-hidden bg-background text-foreground">
-        {settingsOwnsChrome ? null : (
+        {settingsOwnsChrome || immersive ? null : (
           <div
             data-collapsed={sidebarCollapsed ? "true" : "false"}
             className="agent-layout-left-drawer hidden md:block"

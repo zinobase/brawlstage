@@ -1,9 +1,9 @@
 {
   "name": "BrawlStage",
   "short_name": "BrawlStage",
-  "description": "Workspace app for BrawlStage.",
-  "start_url": "./home",
-  "background_color": "#111111",
+  "description": "Adversarial multi-viewport UI stress arena.",
+  "start_url": "./arena",
+  "background_color": "#121110",
   "theme_color": "#18181B",
   "icons": [
     {

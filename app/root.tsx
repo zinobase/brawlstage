@@ -35,6 +35,8 @@ import {
 import { TAB_ID } from "@/lib/tab-id";
 
 import { i18nCatalog } from "./i18n";
+// Registers the holdout-cleared card the agent chat shows for verify-holdout-widths.
+import "./components/HoldoutClearedCard";
 
 import stylesheet from "./global.css?url";
 
@@ -94,10 +96,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 function DbSyncSetup() {
   const qc = useQueryClient();
+  const { pathname } = useLocation();
   useNavigationState();
   useDbSync({
     queryClient: qc,
     ignoreSource: TAB_ID,
+    ...(pathname.startsWith("/arena/")
+      ? { realtime: { reason: "agents and teammates patch and re-arm this component while its stage is open; the stage must re-measure their changes" } }
+      : {}),
+    pauseWhenHidden: true,
   });
   return null;
 }
