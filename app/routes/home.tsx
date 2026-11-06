@@ -1,9 +1,9 @@
 import HomePage from "@/components/home/HomePage";
 import { APP_TITLE } from "@/lib/app-config";
 
-const SEO_TITLE = `${APP_TITLE} - Open Source AI app starter with actions`;
+const SEO_TITLE = "BrawlStage — see every width, before it ships";
 const SEO_DESCRIPTION =
-  "Open Source starter for agent-native apps with durable chat, shared actions, UI state, tools, and a backend your agent can extend.";
+  "A responsive QA arena that measures components at 28 public and 5 sealed widths, with an agent that fixes the layout and learns from your hand edits.";
 
 export function meta() {
   return [

@@ -18,13 +18,19 @@ export interface NavigationState {
   path?: string;
   publicPath?: string;
   threadId?: string;
+  route?: string;
+  componentId?: string;
+  activeWidth?: number;
+  selectedSelector?: string;
+  saboteurProfile?: string;
 }
 
 export function useNavigationState() {
   useAgentRouteState<NavigationState>({
     browserTabId: TAB_ID,
     requestSource: TAB_ID,
-    getNavigationState: ({ pathname }) => navigationStateForPath(pathname),
+    getNavigationState: ({ pathname, searchParams }) =>
+      navigationStateForPath(pathname, searchParams),
     getCommandPath: commandPathForNavigation,
   });
 }
@@ -62,17 +68,32 @@ function matchesPathPrefix(pathname: string, prefix: string): boolean {
   return pathname === prefix || pathname.startsWith(`${prefix}/`);
 }
 
-export function navigationStateForPath(pathname: string): NavigationState {
+export function navigationStateForPath(
+  pathname: string,
+  searchParams?: URLSearchParams,
+): NavigationState {
   const threadId = threadIdFromPath(pathname);
+  const componentId = pathname.match(/^\/arena\/([^/]+)/)?.[1];
+  const width = Number(searchParams?.get("w") ?? "");
+  const selector = searchParams?.get("sel");
+  const saboteur = searchParams?.get("sab");
   return {
     view: viewForPath(pathname),
+    route: pathname,
     path: pathname,
     publicPath: appPathFromLocalRoute(pathname),
     ...(threadId ? { threadId } : {}),
+    ...(componentId ? { componentId: decodeURIComponent(componentId) } : {}),
+    ...(componentId && Number.isFinite(width) && width > 0
+      ? { activeWidth: width }
+      : {}),
+    ...(selector ? { selectedSelector: selector } : {}),
+    ...(saboteur ? { saboteurProfile: saboteur } : {}),
   };
 }
 
 function viewForPath(pathname: string): string {
+  if (pathname.startsWith("/arena")) return "arena";
   if (isChatPathname(pathname)) return "chat";
   if (pathname === HOME_PATH) return "home";
   if (pathname.startsWith("/database")) return "database";
@@ -93,6 +114,8 @@ function pathForView(view?: string): string {
       return NEW_CHAT_PATH;
     case "home":
       return HOME_PATH;
+    case "arena":
+      return "/arena";
     case "database":
       return "/database";
     case "extensions":
