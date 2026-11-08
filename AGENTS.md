@@ -1,6 +1,6 @@
-# Chat — Agent Guide
+# BrawlStage — Agent Guide
 
-Chat is the minimal chat-first agent-native app. `/` redirects to shared sign-in, then `/home`, the editable Get started page. Chat lives at `/chat`; new chats start there. Actions carry capabilities; screens exist only for durable workflows.
+BrawlStage is built on the chat-first agent-native starter. `/` redirects to shared sign-in, then `/home`, the editable Get started page. Chat lives at `/chat`; new chats start there. Actions carry capabilities; screens exist only for durable workflows.
 
 ## Skills
 
@@ -22,12 +22,26 @@ For custom branding, keep `server/plugins/agent-native-email-branding.ts` aligne
 - `navigation` describes the view and selected ids. Chat is `chat` at `/chat` and `/chat/<threadId>`; the Get started page is `home` at `/home`; `/` opens shared sign-in/signup.
 - Use `navigate` when supported and `view-screen` for a fresh read of visible details; basic navigation is already in `<current-screen>`.
 
-## Building a domain app
+## BrawlStage arena
 
-Choose the primary workflow and route before editing. Add a domain route under `app/routes/` and set `app.homePath` in `server/plugins/agent-native-email-branding.ts` with `defineAppConfig`. The default Get started page lives at `/home`, and Chat stays at `/chat`; edit `app/routes/home.tsx` when replacing that page with a domain-specific home. Add a static link in `app/components/layout/Sidebar.tsx` before `ChatThreadsSection`; `Header.tsx` uses `APP_TITLE` elsewhere. Shared sidebar and AgentInspector remain.
+Responsive UI stress arena. `/arena` is the fight card; `/arena/:componentId?w=<px>&sel=<selector>&sab=<profile>` is the stage. `navigation` adds `route`, `componentId`, `activeWidth`, `selectedSelector`, `saboteurProfile`.
 
-Use `adding-a-feature` for functional parity and `frontend-design` for a user-facing screen. Keep feature guidance here; do not rewrite `README.md` or `DESIGN.md`. After all edits, run one typecheck, one doctor check, and one browser smoke of the primary workflow, including overlap rejection, cancellation freeing the slot, and authenticated landing. Skip production build and extra test suites.
+- Measurements come only from the browser's DOM engine (33 widths: 28 public 320–1920 + sealed holdouts 347/513/701/991/1153). `record-viewport-audit` is UI-only; never invent findings or pass rates.
+- Holdout findings are sealed: you see pass/fail per holdout lane only. Never target holdout widths with media queries; fix the general layout.
+- Fix loop: `view-screen` → `patch-component-tokens` (source "agent") → open stage re-measures → `verify-holdout-widths`. `AUDIT_PENDING` = retry shortly (stage must be open); `HOLDOUT_REGRESSION` = report lanes, keep fixing.
+- Keep the design: never delete a background, featured style, element or content to pass a check. Fix contrast with colours (tokens), overflow with flexible layout.
+- Read `.agents/skills/learned-layout-rules/SKILL.md` before drafting CSS; `capture-design-learning` appends to it from human hand edits.
+- WebMCP page tools on the stage: `run-viewport-sweep`, `measure-stage-width` (`window.__agentNativeWebMcp`).
+- Inline token comparison: call `render-inline-extension` with an Alpine card showing `get-component` tokens before/after a patch. Pass-rate summary: `save-data-program` with `appAction("list-components")` emitting name, lastPassRate, holdoutPassRate.
 
-Before building common workspace or agent UI, read `agent-native-toolkit`; for supported customization, read `customizing-agent-native`.
-
-- Guarded verification: run `pnpm agent-native:doctor`; fix findings before done.
+| Action | Purpose |
+|---|---|
+| list-components | Fight card with pass rates |
+| get-component | Markup, CSS, tokens, stage, latest run (holdout redacted), rules |
+| save-component | Create or replace a component |
+| patch-component-tokens | Token/CSS patch tagged agent or human |
+| inject-saboteur-payload | Arm i18n-expansion, rtl-mirror, payload-extremes, font-scale-200, none |
+| verify-holdout-widths | Sealed holdout gate (409 on regression) |
+| capture-design-learning | Diff agent draft vs human final into a rule |
+| delete-component | Delete a component |
+| view-screen / navigate | Screen context and navigation |
